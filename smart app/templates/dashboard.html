@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Dashboard | SmartStudy</title>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-brain"></i>
+                <span>SmartStudy</span>
+            </div>
+            
+            <nav class="nav-group">
+                <a href="{{ url_for('dashboard') }}" class="nav-item active">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('notes') }}" class="nav-item">
+                    <i class="fas fa-book"></i>
+                    <span>My Notes</span>
+                </a>
+                <a href="{{ url_for('quiz') }}" class="nav-item">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Quizzes</span>
+                </a>
+                <a href="{{ url_for('revision') }}" class="nav-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Revision</span>
+                </a>
+                
+                <a href="{{ url_for('logout') }}" class="nav-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header-section">
+                <div class="greeting">
+                    <h2>Hello, Learner! 👋</h2>
+                    <p style="color: var(--text-muted);">What would you like to master today?</p>
+                </div>
+                
+                <div class="header-actions">
+                    {% if active_session %}
+                        <div style="display: flex; align-items: center; gap: 1.5rem;">
+                            <span style="color: var(--accent); font-weight: 600;">
+                                <i class="fas fa-circle-notch fa-spin"></i> Session Active
+                            </span>
+                            <a href="{{ url_for('stop_session') }}" class="btn btn-primary" style="background: var(--danger); box-shadow: 0 10px 20px -5px rgba(239, 68, 68, 0.4);">
+                                Stop Session
+                            </a>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('start_session') }}" class="btn btn-primary">
+                            <i class="fas fa-play"></i> Start Study Session
+                        </a>
+                    {% endif %}
+                </div>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Focus Hours</h3>
+                    <p class="value">{{ focus_hours }}h</p>
+                    <i class="fas fa-clock" style="position: absolute; right: 2rem; bottom: 2rem; font-size: 3rem; opacity: 0.05;"></i>
+                </div>
+                <div class="stat-card">
+                    <h3>Quizzes Done</h3>
+                    <p class="value">{{ quizzes_count }}</p>
+                    <i class="fas fa-check-double" style="position: absolute; right: 2rem; bottom: 2rem; font-size: 3rem; opacity: 0.05;"></i>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Notes</h3>
+                    <p class="value">{{ notes|length }}</p>
+                    <i class="fas fa-file-alt" style="position: absolute; right: 2rem; bottom: 2rem; font-size: 3rem; opacity: 0.05;"></i>
+                </div>
+            </div>
+
+            <section class="upload-area" onclick="document.getElementById('study-file').click()">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h3>Drop your materials here</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+                    Upload PDFs, Images, or Text files. We'll automatically extract the notes and generate a practice quiz for you.
+                </p>
+                <form action="#" method="POST" enctype="multipart/form-data" id="upload-form">
+                    <input type="file" id="study-file" name="file" style="display: none;" onchange="this.form.submit()">
+                    <span class="btn btn-outline">Select File</span>
+                </form>
+            </section>
+
+            <section>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.5rem;">Recent Activity</h3>
+                    <a href="{{ url_for('notes') }}" style="color: var(--primary); text-decoration: none; font-weight: 600;">View All</a>
+                </div>
+                <div class="activity-list">
+                    {% if notes %}
+                        {% for note in notes[:5] %}
+                        <div class="activity-item">
+                            <div class="activity-info">
+                                <h4>Material #{{ note.id }}</h4>
+                                <p>{{ note.content[:100] }}...</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <p style="font-size: 0.85rem; margin-bottom: 0.5rem;">{{ note.timestamp.strftime('%b %d, %H:%M') }}</p>
+                                <span class="status-badge" style="background: var(--glass); color: var(--text-main);">Level {{ note.level }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="padding: 4rem; text-align: center;">
+                            <i class="fas fa-folder-open" style="font-size: 3rem; color: var(--glass-border); margin-bottom: 1rem; display: block;"></i>
+                            <p style="color: var(--text-muted);">No study materials uploaded yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- AI Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-popup" id="chat-window">
+            <div class="chat-header">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-robot"></i>
+                    <span>Study Assistant</span>
+                </div>
+                <i class="fas fa-times" style="cursor: pointer;" onclick="toggleChat()"></i>
+            </div>
+            <div class="chat-content" id="chat-messages">
+                <div class="msg bot-msg">Hi! I'm here to help. Ask me anything about your notes!</div>
+            </div>
+            <div class="chat-footer">
+                <input type="text" id="chat-input" placeholder="Type a message...">
+                <button class="btn btn-primary" style="padding: 0 1.25rem;" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        <div class="chat-trigger" onclick="toggleChat()">
+            <i class="fas fa-comment-alt"></i>
+        </div>
+    </div>
+
+    <script>
+        function toggleChat() {
+            const win = document.getElementById('chat-window');
+            win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const messages = document.getElementById('chat-messages');
+            const query = input.value.trim();
+            if (!query) return;
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'msg user-msg';
+            userDiv.textContent = query;
+            messages.appendChild(userDiv);
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query: query})
+                });
+                const data = await response.json();
+                
+                const botDiv = document.createElement('div');
+                botDiv.className = 'msg bot-msg';
+                botDiv.textContent = data.response;
+                messages.appendChild(botDiv);
+                messages.scrollTop = messages.scrollHeight;
+            } catch (e) { console.error(e); }
+        }
+
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>

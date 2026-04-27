@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>My Notes | SmartStudy</title>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-brain"></i>
+                <span>SmartStudy</span>
+            </div>
+            <nav class="nav-group">
+                <a href="{{ url_for('dashboard') }}" class="nav-item">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('notes') }}" class="nav-item active">
+                    <i class="fas fa-book"></i>
+                    <span>My Notes</span>
+                </a>
+                <a href="{{ url_for('quiz') }}" class="nav-item">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Quizzes</span>
+                </a>
+                <a href="{{ url_for('revision') }}" class="nav-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Revision</span>
+                </a>
+                <a href="{{ url_for('logout') }}" class="nav-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header-section">
+                <div class="greeting">
+                    <h2>Knowledge Base 📚</h2>
+                    <p style="color: var(--text-muted);">Review and organize your academic materials.</p>
+                </div>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline">
+                    <i class="fas fa-plus"></i> Add New Material
+                </a>
+            </header>
+
+            <div style="display: grid; gap: 2rem;">
+                {% if notes %}
+                    {% for note in notes %}
+                    <div class="stat-card" style="padding: 2.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                            <div>
+                                <span class="status-badge" style="background: var(--primary-glow); color: white; margin-bottom: 0.5rem; display: inline-block;">
+                                    Material #{{ note.id }}
+                                </span>
+                                <h3 style="font-size: 1.1rem; color: var(--text-main); margin-top: 0.5rem;">
+                                    <i class="far fa-calendar-alt"></i> Uploaded on {{ note.timestamp.strftime('%B %d, %Y') }}
+                                </h3>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                                <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem; color: var(--danger);">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div style="color: var(--text-main); line-height: 1.8; white-space: pre-wrap; font-size: 1.05rem; background: rgba(0,0,0,0.2); padding: 2rem; border-radius: 1rem; border: 1px solid var(--glass-border);">
+                            {{ note.content }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="stat-card" style="padding: 5rem; text-align: center;">
+                        <i class="fas fa-book-open" style="font-size: 4rem; color: var(--glass-border); margin-bottom: 1.5rem; display: block;"></i>
+                        <h2 style="margin-bottom: 1rem;">No notes yet</h2>
+                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Upload your first study material to see it here.</p>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Get Started</a>
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>
