@@ -1,0 +1,7 @@
+flask
+flask-sqlalchemy
+pytesseract
+pillow
+google-generativeai
+python-dotenv
+gunicorn
